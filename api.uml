@@ -1,0 +1,123 @@
+@startuml
+package IntegraionHttpModule {
+		class Controller {
+				+objcet run(object data);
+		}
+}
+
+package IntegrationEngineModule {
+        class IntegrationEngine {
+                +Guid id
+                +string name
+                +IntegrationStep[] integrationSteps
+
+                +IntegrationStep GetCurrentStep()
+                +void ExecuteStep(Guid id)
+                +IntegrationStep[] GetHistory()
+        }
+
+		interface IEngineMatcher {
+				+IntegraionEngineIdentifier getIntegationEngineId(IntegraionPayload payload)
+		}
+
+ 
+        class IntegrationEngineFactory {
+				+IntegrationEngine create(IntegraionPayload payload)
+        }
+
+ 
+
+        interface IIntegrationStepsProvider {
+				+IntegrationStep[] getSteps(IntegraionEngineIdentifier identifier)
+        }
+
+ 
+
+        interface IntegrationStep {
+                +Guid id
+				+ExecutionResult execute(object payload)
+        }
+
+ 
+
+        class HttpIntegrationStep {
+        }
+
+ 
+
+        class SoapIntegrationStep {
+        }
+
+ 
+
+        class YamlFileIntegrationStepProvider {
+        }
+
+ 
+
+        class ExecutionResult {
+                +StepStatus status
+                +object successMessage 
+                +Exception errorException?
+        }
+
+ 
+		interface IExecutionLogRepository {
+				+IntegrationStep[] getSteps(IntegraionEngineIdentifier identifier)
+		}
+
+        enum StepStatus {
+                success,
+                pending,
+                error
+        }
+
+		Controller *-- IntegrationEngineFactory
+
+		IntegrationEngineFactory *-- IExecutionLogRepository
+
+		package Models {
+				class IntegraionPayload {
+				}
+
+				class IntegraionEngineIdentifier {
+						+Guid inegraionEngineId
+						+string ingrationEngineType
+				}
+		}
+}
+
+
+ 
+
+class AuthorizationAzureIntegrationStep {
+}
+
+ 
+
+class DmtGetClientId {
+}
+
+ 
+
+class HardcodedStepProvider {
+}
+
+ 
+
+IntegrationStep --|> HttpIntegrationStep
+IntegrationStep --|> SoapIntegrationStep
+IntegrationStep --|> AuthorizationAzureIntegrationStep
+IntegrationStep --|> DmtGetClientId
+
+ 
+
+IntegrationEngineFactory *-- IIntegrationStepsProvider
+IntegrationEngineFactory --> IntegrationEngine
+IntegrationEngineFactory *-up- IEngineMatcher
+
+ 
+
+IIntegrationStepsProvider --|> HardcodedStepProvider
+IIntegrationStepsProvider --|> YamlFileIntegrationStepProvider
+@enduml
