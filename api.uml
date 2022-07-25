@@ -7,22 +7,22 @@ package IntegraionHttpModule {
 
 package IntegrationEngineModule {
         class IntegrationEngine {
+                -IntegrationStep[] integrationSteps
+				-IntegrationStep currentStep
                 +Guid id
                 +string name
-                +IntegrationStep[] integrationSteps
 
-                +IntegrationStep GetCurrentStep()
-                +void ExecuteStep(Guid id)
+				+ExecutionResult Execute(IntegrationPayload payload)
                 +IntegrationStep[] GetHistory()
         }
 
 		interface IEngineMatcher {
-				+IntegraionEngineIdentifier getIntegationEngineId(IntegraionPayload payload)
+				+IntegraionEngineIdentifier getIntegationEngineId(IntegrationPayload payload)
 		}
 
  
         class IntegrationEngineFactory {
-				+IntegrationEngine create(IntegraionPayload payload)
+				+IntegrationEngine create(IntegrationPayload payload)
         }
 
  
@@ -64,6 +64,7 @@ package IntegrationEngineModule {
  
 		interface IExecutionLogRepository {
 				+IntegrationStep[] getSteps(IntegraionEngineIdentifier identifier)
+				+void writeExecutionResult(ExecutionResult executionResult, Guid integrationStepId)
 		}
 
         enum StepStatus {
@@ -77,7 +78,7 @@ package IntegrationEngineModule {
 		IntegrationEngineFactory *-- IExecutionLogRepository
 
 		package Models {
-				class IntegraionPayload {
+				class IntegrationPayload {
 				}
 
 				class IntegraionEngineIdentifier {
@@ -86,6 +87,8 @@ package IntegrationEngineModule {
 				}
 		}
 }
+
+IntegrationPayload -|> DmtIntegrationPayload
 
 
  
@@ -115,6 +118,8 @@ IntegrationStep --|> DmtGetClientId
 IntegrationEngineFactory *-- IIntegrationStepsProvider
 IntegrationEngineFactory --> IntegrationEngine
 IntegrationEngineFactory *-up- IEngineMatcher
+
+IntegrationEngine *-- IExecutionLogRepository
 
  
 
